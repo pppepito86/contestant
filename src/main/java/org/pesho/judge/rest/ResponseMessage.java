@@ -1,7 +1,5 @@
 package org.pesho.judge.rest;
 
-import org.springframework.http.ResponseEntity;
-
 public class ResponseMessage {
 
     public static ResponseMessage getOKMessage(Object data) {
