@@ -63,6 +63,9 @@ public class RestService {
 	public ResponseEntity<?> submitFile(@RequestPart("file") MultipartFile file,
 										@RequestParam("username") String username,
 										@RequestParam("password") String password) {
+		if (!repository.getUser(username, password).isPresent()) {
+			return getResponse(ResponseMessage.getErrorMessage("Username/password is incorrect"));
+		}
 
 		if (file == null || file.isEmpty()) {
 			return getResponse(ResponseMessage.getErrorMessage("There is no file submitted"));
@@ -121,7 +124,12 @@ public class RestService {
 	}
 
 	@PostMapping("/submissions")
-	public ResponseEntity<?>  listSubmissions(String username) {
+	public ResponseEntity<?>  listSubmissions(@RequestParam("username") String username,
+											  @RequestParam("password") String password) {
+		if (!repository.getUser(username, password).isPresent()) {
+			return getResponse(ResponseMessage.getErrorMessage("Username/password is incorrect"));
+		}
+
 		List<Map<String, Object>> submissions = taskSubmissions(username);
 		return getResponse(ResponseMessage.getOKMessage(submissions));
 	}

@@ -21,6 +21,12 @@ public class Repository {
     			.stream().findAny();
     }
 
+	public Optional<Map<String, Object>> getUser(String username, String password) {
+		return template.queryForList(
+				"SELECT name FROM users WHERE name=? and password=?", username, password)
+				.stream().findAny();
+	}
+
     public Optional<Map<String, Object>> getContest(String username) {
     	return template.queryForList(
     			"SELECT c.id, c.start_time, c.end_time FROM contests as c" +
