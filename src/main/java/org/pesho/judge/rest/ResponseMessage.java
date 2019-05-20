@@ -28,7 +28,4 @@ public class ResponseMessage {
         return error;
     }
 
-    public ResponseEntity<?> getResponse() {
-        return ResponseEntity.ok(this);
-    }
 }

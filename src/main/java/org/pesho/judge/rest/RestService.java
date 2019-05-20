@@ -65,19 +65,19 @@ public class RestService {
 										@RequestParam("password") String password) {
 
 		if (file == null || file.isEmpty()) {
-			return ResponseMessage.getErrorMessage("There is no file submitted").getResponse();
+			return getResponse(ResponseMessage.getErrorMessage("There is no file submitted"));
 		}
 
 		if (!FileType.isAllowed(file.getOriginalFilename())) {
-			return ResponseMessage.getErrorMessage("Program language not supported. Use java or c++ for your solution").getResponse();
+			return getResponse(ResponseMessage.getErrorMessage("Program language not supported. Use java or c++ for your solution"));
 		}
 
 		if (file.getSize() > 64 * 1024) {
-			return ResponseMessage.getErrorMessage("File size exceeds 64KB").getResponse();
+			return getResponse(ResponseMessage.getErrorMessage("File size exceeds 64KB"));
 		}
 
 
-		return addSubmission(username, file).getResponse();
+		return getResponse(addSubmission(username, file));
 	}
 
 	public ResponseMessage addSubmission(String username, MultipartFile file) {
@@ -120,10 +120,14 @@ public class RestService {
 		return ResponseMessage.getOKMessage("Submission uploaded with id " + submissionNumber);
 	}
 
-	@RequestMapping("/submissions")
+	@PostMapping("/submissions")
 	public ResponseEntity<?>  listSubmissions(String username) {
-		List<Map<String, Object>> submissions = taskSubmissions(username, PROBLEM_NUMBER);
-		return ResponseMessage.getOKMessage(submissions).getResponse();
+		List<Map<String, Object>> submissions = taskSubmissions(username);
+		return getResponse(ResponseMessage.getOKMessage(submissions));
+	}
+
+	public ResponseEntity<?> getResponse(ResponseMessage responseMessage) {
+		return ResponseEntity.ok(responseMessage);
 	}
 
 
@@ -365,13 +369,13 @@ public class RestService {
 		return new File(path).getAbsoluteFile();
 	}
 	
-	private List<Map<String, Object>> taskSubmissions(String username, int problemNumber) {
-		List<Map<String,Object>> submissions = repository.listSubmissions(username, problemNumber);
+	private List<Map<String, Object>> taskSubmissions(String username) {
+		List<Map<String,Object>> submissions = repository.listSubmissions(username, PROBLEM_NUMBER);
     	for (int i = 0; i < submissions.size(); i++) {
     		submissions.get(i).put("number", submissions.size()-i);
     	}
     	String contestId = repository.getContestId(username).orElse(null);
-    	TaskDetails details = getTaskDetails(contestId, String.valueOf(problemNumber));
+    	TaskDetails details = getTaskDetails(contestId, String.valueOf(PROBLEM_NUMBER));
     	submissions.forEach(submission -> {
     		TreeSet<Integer> feedback = feedback(details.getFeedback());
 			submission.put("verdict", fixVerdict(submission.get("verdict").toString(), feedback));
