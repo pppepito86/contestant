@@ -4,24 +4,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeSet;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.FileUtils;
-import org.pesho.grader.SubmissionScore;
-import org.pesho.grader.step.StepResult;
-import org.pesho.grader.step.Verdict;
 import org.pesho.grader.task.TaskDetails;
 import org.pesho.grader.task.TaskParser;
 import org.pesho.judge.repositories.Repository;
@@ -31,17 +25,11 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class RestService {
@@ -55,14 +43,32 @@ public class RestService {
 	
 	@Autowired
 	protected Repository repository;
-	
-	protected ObjectMapper mapper = new ObjectMapper();
+
+    @PostMapping("/register")
+    public ResponseEntity<?>  register(@RequestParam("username") String username,
+                                       @RequestParam("password") String password,
+                                       @RequestParam("password") String passwordRepeated,
+                                       @RequestParam("email") String email) {
+        username = username.toLowerCase();
+
+        if (repository.getUserDetails(username).isPresent()) {
+            return getResponse(ResponseMessage.getErrorMessage("Username is already taken"));
+        }
+        if (!password.equals(passwordRepeated)) {
+            return getResponse(ResponseMessage.getErrorMessage("Passwords does not match"));
+        }
+
+        repository.addUser(username, password, email);
+        return getResponse(ResponseMessage.getOKMessage(""));
+    }
 
 	@PostMapping("/submit")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public ResponseEntity<?> submitFile(@RequestPart("file") MultipartFile file,
 										@RequestParam("username") String username,
 										@RequestParam("password") String password) {
+        username = username.toLowerCase();
+
 		if (!repository.getUser(username, password).isPresent()) {
 			return getResponse(ResponseMessage.getErrorMessage("Username/password is incorrect"));
 		}
@@ -78,7 +84,6 @@ public class RestService {
 		if (file.getSize() > 64 * 1024) {
 			return getResponse(ResponseMessage.getErrorMessage("File size exceeds 64KB"));
 		}
-
 
 		return getResponse(addSubmission(username, file));
 	}
@@ -126,6 +131,8 @@ public class RestService {
 	@PostMapping("/submissions")
 	public ResponseEntity<?>  listSubmissions(@RequestParam("username") String username,
 											  @RequestParam("password") String password) {
+        username = username.toLowerCase();
+
 		if (!repository.getUser(username, password).isPresent()) {
 			return getResponse(ResponseMessage.getErrorMessage("Username/password is incorrect"));
 		}

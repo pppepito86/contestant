@@ -1,7 +1,5 @@
 package org.pesho.judge.rest;
 
-import java.io.File;
-
 public class FileType {
 
     public static boolean isAllowed(String name) {

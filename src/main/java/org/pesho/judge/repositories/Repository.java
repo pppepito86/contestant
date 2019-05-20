@@ -201,6 +201,11 @@ public class Repository {
     	template.update("INSERT INTO logs(topic, title, message) VALUES(?, ?, ?)", 
     			topic, title, message);
     }
+
+    public synchronized void addUser(String username, String password, String email) {
+        template.update("INSERT INTO users(role, name, password, display_name, contest, grade) VALUES(?, ?, ?, ?, ?, ?)",
+                "USER", username, password, "", "J", email);
+    }
     
     public synchronized void addIpLog(String username, String operation, String localIp, String publicIp) {
     	template.update("INSERT INTO ips(username, operation, local_ip, public_ip) VALUES(?, ?, ?, ?)", 
