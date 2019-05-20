@@ -202,9 +202,9 @@ public class Repository {
     			topic, title, message);
     }
 
-    public synchronized void addUser(String username, String password, String email) {
+    public synchronized void addUser(String username, String password, String email, String displayName) {
         template.update("INSERT INTO users(role, name, password, display_name, contest, grade) VALUES(?, ?, ?, ?, ?, ?)",
-                "USER", username, password, "", "J", email);
+                "USER", username, password, displayName, "J", email);
     }
     
     public synchronized void addIpLog(String username, String operation, String localIp, String publicIp) {

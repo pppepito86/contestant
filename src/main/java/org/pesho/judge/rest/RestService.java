@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -40,18 +41,19 @@ public class RestService {
     @PostMapping("/register")
     public ResponseEntity<?>  register(@RequestParam("username") String username,
                                        @RequestParam("password") String password,
-                                       @RequestParam("password") String passwordRepeated,
-                                       @RequestParam("email") String email) {
+                                       @RequestParam("password2") String password2,
+                                       @RequestParam("email") String email,
+                                       @RequestParam("name") String name) {
         username = username.toLowerCase();
 
         if (repository.getUserDetails(username).isPresent()) {
             return getResponse(ResponseMessage.getErrorMessage("Username is already taken"));
         }
-        if (!password.equals(passwordRepeated)) {
+        if (!password.equals(password2)) {
             return getResponse(ResponseMessage.getErrorMessage("Passwords does not match"));
         }
 
-        repository.addUser(username, password, email);
+        repository.addUser(username, password, email, name);
         return getResponse(ResponseMessage.getOKMessage(""));
     }
 
