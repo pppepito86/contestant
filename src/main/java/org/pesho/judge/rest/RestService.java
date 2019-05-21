@@ -15,6 +15,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.FileUtils;
+import org.pesho.grader.SubmissionScore;
+import org.pesho.grader.step.StepResult;
 import org.pesho.grader.task.TaskDetails;
 import org.pesho.grader.task.TaskParser;
 import org.pesho.judge.repositories.Repository;
@@ -28,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @RestController
 public class RestService {
 
@@ -40,6 +44,8 @@ public class RestService {
 	
 	@Autowired
 	protected Repository repository;
+
+    protected ObjectMapper mapper = new ObjectMapper();
 
     @GetMapping("/standings")
     public ResponseEntity<?>  standings() {
@@ -71,6 +77,7 @@ public class RestService {
             int p1 = (int) u1.get("points");
             int p2 = (int) u2.get("points");
             if (p1 != p2) return p2-p1;
+
             int id1 = (int) u1.get("id");
             int id2 = (int) u2.get("id");
             return id1 - id2;
@@ -88,12 +95,13 @@ public class RestService {
                                        @RequestParam("linkedin") String linkedin,
                                        @RequestParam("contact") boolean checkbox) {
         username = username.toLowerCase();
-        if (!username.matches("^[a-z0-9]{6,20}$")) return getResponse(ResponseMessage.getErrorMessage("Username is not valid"));
+        if (username.length() < 6) return getResponse(ResponseMessage.getErrorMessage("Username should be at least 6 characters"));
+        if (username.length() > 20) return getResponse(ResponseMessage.getErrorMessage("Username should be at most 20 characters"));
+        if (!username.matches("^[a-z0-9]{6,20}$")) return getResponse(ResponseMessage.getErrorMessage("Username should contain latin letters and numbers only"));
         if (repository.getUserDetails(username).isPresent()) return getResponse(ResponseMessage.getErrorMessage("Username is already taken"));
 
-        if (!password.equals(password2)) {
-            return getResponse(ResponseMessage.getErrorMessage("Passwords does not match"));
-        }
+        if (!password.equals(password2)) return getResponse(ResponseMessage.getErrorMessage("Passwords does not match"));
+
         if (password.length() < 6) return getResponse(ResponseMessage.getErrorMessage("Password too short"));
         if (password.length() > 100) return getResponse(ResponseMessage.getErrorMessage("Password too long"));
 
@@ -223,16 +231,25 @@ public class RestService {
     	for (int i = 0; i < submissions.size(); i++) {
     		submissions.get(i).put("number", submissions.size()-i);
     	}
-    	String contestId = repository.getContestId(username).orElse(null);
-    	TaskDetails details = getTaskDetails(contestId, String.valueOf(PROBLEM_NUMBER));
+    	TaskDetails taskDetails = getTaskDetails(String.valueOf(CONTEST_ID), String.valueOf(PROBLEM_NUMBER));
     	submissions.forEach(submission -> {
-    		TreeSet<Integer> feedback = feedback(details.getFeedback());
+    		TreeSet<Integer> feedback = feedback(taskDetails.getFeedback());
 			submission.put("verdict", fixVerdict(submission.get("verdict").toString(), feedback));
+            String reason = null;
 			if ("CE".equals(submission.get("verdict"))) {
-                submission.put("reason", null);
-            } else {
-			    submission.put("reason", null);
+                reason = "";
+                try {
+                    String submissionDetails = submission.get("details").toString();
+                    if (submissionDetails != null && !submissionDetails.isEmpty()) {
+                        SubmissionScore score = mapper.readValue(submissionDetails, SubmissionScore.class);
+                        if (score.getScoreSteps().containsKey("Compile")) reason = score.getScoreSteps().get("Compile").getReason();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+            submission.put("reason", reason);
+
 			if (feedback.size() != 0) submission.put("points", "?");
     	});
 		return submissions;
