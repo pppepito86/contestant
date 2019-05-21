@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -46,20 +47,22 @@ public class RestService {
 
         HashMap<String, Integer> usersNumber = new HashMap<>();
         for (int i = 0; i < users.size(); i++) {
-            users.get(i).put("points", 0);
             usersNumber.put(users.get(i).get("name").toString(), i);
         }
 
         for (Map<String, Object> submission: submissions) {
             String username = submission.get("username").toString();
 
-            int points = 0;
-            if (submission.get("points") != null) points += (int) submission.get("points");
-            if (points == 0) continue;;
+            if (submission.get("points") == null) continue;
 
             int userIndex = usersNumber.get(username);
-            int userPoints = (int) users.get(userIndex).get("points");
-            if (points > userPoints) users.get(userIndex).put("points", points);
+            users.get(userIndex).put("points", submission.get("points"));
+            users.get(userIndex).put("upload_time", submission.get("upload_time"));
+        }
+
+        Iterator<Map<String, Object>> it = users.iterator();
+        while (it.hasNext()) {
+            if (!it.next().containsKey("points")) it.remove();
         }
 
         return getResponse(ResponseMessage.getOKMessage(users));
@@ -211,10 +214,14 @@ public class RestService {
     	submissions.forEach(submission -> {
     		TreeSet<Integer> feedback = feedback(details.getFeedback());
 			submission.put("verdict", fixVerdict(submission.get("verdict").toString(), feedback));
+			if ("CE".equals(submission.get("verdict"))) {
+                submission.put("reason", null);
+            } else {
+			    submission.put("reason", null);
+            }
 			if (feedback.size() != 0) submission.put("points", "?");
     	});
 		return submissions;
 	}
-
 
 }

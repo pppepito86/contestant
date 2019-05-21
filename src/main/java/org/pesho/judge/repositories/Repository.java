@@ -153,11 +153,11 @@ public class Repository {
 //	}
 
     public List<Map<String, Object>> listUsers() {
-        return template.queryForList("SELECT * from users where contest='J'");
+        return template.queryForList("SELECT name from users where contest='J'");
     }
 
     public List<Map<String, Object>> listSubmissions() {
-		return template.queryForList("SELECT * from submissions");
+		return template.queryForList("SELECT * from submissions order by id ASC");
 	}
 	
 	public List<Map<String, Object>> listCitySubmissions(String city) {
