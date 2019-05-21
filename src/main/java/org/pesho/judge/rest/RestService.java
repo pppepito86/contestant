@@ -47,7 +47,7 @@ public class RestService {
 
     protected ObjectMapper mapper = new ObjectMapper();
 
-    @GetMapping("standings")
+    @GetMapping("/api/standings")
     public ResponseEntity<?>  standings() {
         List<Map<String, Object>> users = repository.listUsers();
         List<Map<String, Object>> submissions = repository.listSubmissions();
@@ -86,7 +86,7 @@ public class RestService {
         return getResponse(ResponseMessage.getOKMessage(users));
     }
 
-    @PostMapping("register")
+    @PostMapping("/api/register")
     public ResponseEntity<?>  register(@RequestParam("username") String username,
                                        @RequestParam("password") String password,
                                        @RequestParam("password2") String password2,
@@ -114,7 +114,7 @@ public class RestService {
         return getResponse(ResponseMessage.getOKMessage(""));
     }
 
-	@PostMapping("submit")
+	@PostMapping("/api/submit")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public ResponseEntity<?> submitFile(@RequestPart("file") MultipartFile file,
 										@RequestParam("username") String username,
@@ -180,7 +180,7 @@ public class RestService {
 		return ResponseMessage.getOKMessage("Submission uploaded with id " + submissionNumber);
 	}
 
-	@PostMapping("submissions")
+	@PostMapping("/api/submissions")
 	public ResponseEntity<?>  listSubmissions(@RequestParam("username") String username,
 											  @RequestParam("password") String password) {
         username = username.toLowerCase();
