@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +57,7 @@ public class RestService {
             if (submission.get("points") == null) continue;
 
             int userIndex = usersNumber.get(username);
+            users.get(userIndex).put("id", submission.get("id"));
             users.get(userIndex).put("points", submission.get("points"));
             users.get(userIndex).put("upload_time", submission.get("upload_time"));
         }
@@ -65,6 +67,15 @@ public class RestService {
             if (!it.next().containsKey("points")) it.remove();
         }
 
+        Collections.sort(users, (u1, u2) -> {
+            int p1 = (int) u1.get("points");
+            int p2 = (int) u2.get("points");
+            if (p1 != p2) return p2-p1;
+            int id1 = (int) u1.get("id");
+            int id2 = (int) u2.get("id");
+            return id1 - id2;
+        });
+
         return getResponse(ResponseMessage.getOKMessage(users));
     }
 
@@ -72,18 +83,21 @@ public class RestService {
     public ResponseEntity<?>  register(@RequestParam("username") String username,
                                        @RequestParam("password") String password,
                                        @RequestParam("password2") String password2,
+                                       @RequestParam("name") String name,
                                        @RequestParam("email") String email,
-                                       @RequestParam("name") String name) {
+                                       @RequestParam("linkedin") String linkedin,
+                                       @RequestParam("contact") boolean checkbox) {
         username = username.toLowerCase();
+        if (!username.matches("^[a-z0-9]{6,20}$")) return getResponse(ResponseMessage.getErrorMessage("Username is not valid"));
+        if (repository.getUserDetails(username).isPresent()) return getResponse(ResponseMessage.getErrorMessage("Username is already taken"));
 
-        if (repository.getUserDetails(username).isPresent()) {
-            return getResponse(ResponseMessage.getErrorMessage("Username is already taken"));
-        }
         if (!password.equals(password2)) {
             return getResponse(ResponseMessage.getErrorMessage("Passwords does not match"));
         }
+        if (password.length() < 6) return getResponse(ResponseMessage.getErrorMessage("Password too short"));
+        if (password.length() > 100) return getResponse(ResponseMessage.getErrorMessage("Password too long"));
 
-        repository.addUser(username, password, email, name);
+        repository.addUser(username, password, email, name, linkedin, Boolean.valueOf(checkbox).toString());
         return getResponse(ResponseMessage.getOKMessage(""));
     }
 

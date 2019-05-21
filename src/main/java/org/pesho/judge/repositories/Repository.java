@@ -206,11 +206,11 @@ public class Repository {
     			topic, title, message);
     }
 
-    public synchronized void addUser(String username, String password, String email, String displayName) {
-        template.update("INSERT INTO users(role, name, password, display_name, contest, grade) VALUES(?, ?, ?, ?, ?, ?)",
-                "USER", username, password, displayName, "J", email);
+    public synchronized void addUser(String username, String password, String email, String displayName, String linkedin, String toContact) {
+        template.update("INSERT INTO users(role, name, password, display_name, contest, grade, school, city) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                "USER", username, password, displayName, "J", email, linkedin, toContact);
     }
-    
+
     public synchronized void addIpLog(String username, String operation, String localIp, String publicIp) {
     	template.update("INSERT INTO ips(username, operation, local_ip, public_ip) VALUES(?, ?, ?, ?)", 
     			username, operation, localIp, publicIp);
