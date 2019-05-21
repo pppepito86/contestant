@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeSet;
 
 import javax.ws.rs.Consumes;
@@ -93,7 +94,7 @@ public class RestService {
                                        @RequestParam("name") String name,
                                        @RequestParam("email") String email,
                                        @RequestParam("linkedin") String linkedin,
-                                       @RequestParam("contact") boolean checkbox) {
+                                       @RequestParam("contact") Optional<Boolean> checkbox) {
         username = username.toLowerCase();
         if (username.length() < 6) return getResponse(ResponseMessage.getErrorMessage("Username should be at least 6 characters"));
         if (username.length() > 20) return getResponse(ResponseMessage.getErrorMessage("Username should be at most 20 characters"));
@@ -105,7 +106,10 @@ public class RestService {
         if (password.length() < 6) return getResponse(ResponseMessage.getErrorMessage("Password too short"));
         if (password.length() > 100) return getResponse(ResponseMessage.getErrorMessage("Password too long"));
 
-        repository.addUser(username, password, email, name, linkedin, Boolean.valueOf(checkbox).toString());
+        if (name.isBlank()) return getResponse(ResponseMessage.getErrorMessage("Name should be provided"));
+        if (email.isBlank()) return getResponse(ResponseMessage.getErrorMessage("Name should be provided"));
+
+        repository.addUser(username, password, email, name, linkedin, checkbox.orElse(false).toString().toString());
         return getResponse(ResponseMessage.getOKMessage(""));
     }
 
