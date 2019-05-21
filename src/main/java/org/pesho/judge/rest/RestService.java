@@ -19,6 +19,7 @@ import org.pesho.judge.repositories.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -37,6 +38,32 @@ public class RestService {
 	
 	@Autowired
 	protected Repository repository;
+
+    @GetMapping("/standings")
+    public ResponseEntity<?>  standings() {
+        List<Map<String, Object>> users = repository.listUsers();
+        List<Map<String, Object>> submissions = repository.listSubmissions();
+
+        HashMap<String, Integer> usersNumber = new HashMap<>();
+        for (int i = 0; i < users.size(); i++) {
+            users.get(i).put("points", 0);
+            usersNumber.put(users.get(i).get("name").toString(), i);
+        }
+
+        for (Map<String, Object> submission: submissions) {
+            String username = submission.get("username").toString();
+
+            int points = 0;
+            if (submission.get("points") != null) points += (int) submission.get("points");
+            if (points == 0) continue;;
+
+            int userIndex = usersNumber.get(username);
+            int userPoints = (int) users.get(userIndex).get("points");
+            if (points > userPoints) users.get(userIndex).put("points", points);
+        }
+
+        return getResponse(ResponseMessage.getOKMessage(users));
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?>  register(@RequestParam("username") String username,

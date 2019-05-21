@@ -151,8 +151,12 @@ public class Repository {
 //	public Optional<Map<String, Object>> getContest(String contest) {
 //		return template.queryForList("SELECT * from contests where name=?", contest).stream().findFirst();
 //	}
-	
-	public List<Map<String, Object>> listSubmissions() {
+
+    public List<Map<String, Object>> listUsers() {
+        return template.queryForList("SELECT * from users where contest='J'");
+    }
+
+    public List<Map<String, Object>> listSubmissions() {
 		return template.queryForList("SELECT * from submissions");
 	}
 	
