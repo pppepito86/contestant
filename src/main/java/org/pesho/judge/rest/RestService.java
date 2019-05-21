@@ -17,7 +17,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.FileUtils;
 import org.pesho.grader.SubmissionScore;
-import org.pesho.grader.step.StepResult;
 import org.pesho.grader.task.TaskDetails;
 import org.pesho.grader.task.TaskParser;
 import org.pesho.judge.repositories.Repository;
@@ -33,7 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RestController
+@RestController("/api")
 public class RestService {
 
 	public static final int CONTEST_ID = 1;
@@ -109,9 +108,9 @@ public class RestService {
         name = name.trim();
         email = email.trim();
         if (name.isEmpty()) return getResponse(ResponseMessage.getErrorMessage("Name should be provided"));
-        if (email.isEmpty()) return getResponse(ResponseMessage.getErrorMessage("Name should be provided"));
+        if (email.isEmpty()) return getResponse(ResponseMessage.getErrorMessage("Email should be provided"));
 
-        repository.addUser(username, password, email, name, linkedin, checkbox.orElse(false).toString().toString());
+        repository.addUser(username, password, email, name, linkedin, checkbox.orElse(false).toString());
         return getResponse(ResponseMessage.getOKMessage(""));
     }
 
