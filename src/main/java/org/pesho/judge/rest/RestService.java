@@ -32,7 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RestController("/api")
+@RestController
 public class RestService {
 
 	public static final int CONTEST_ID = 1;
