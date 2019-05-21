@@ -106,8 +106,8 @@ public class RestService {
         if (password.length() < 6) return getResponse(ResponseMessage.getErrorMessage("Password too short"));
         if (password.length() > 100) return getResponse(ResponseMessage.getErrorMessage("Password too long"));
 
-        if (name.isBlank()) return getResponse(ResponseMessage.getErrorMessage("Name should be provided"));
-        if (email.isBlank()) return getResponse(ResponseMessage.getErrorMessage("Name should be provided"));
+        if (name.isEmpty()) return getResponse(ResponseMessage.getErrorMessage("Name should be provided"));
+        if (email.isEmpty()) return getResponse(ResponseMessage.getErrorMessage("Name should be provided"));
 
         repository.addUser(username, password, email, name, linkedin, checkbox.orElse(false).toString().toString());
         return getResponse(ResponseMessage.getOKMessage(""));
