@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
+@RequestMapping("/api")
 public class RestService {
 
 	public static final int CONTEST_ID = 1;
@@ -47,7 +49,7 @@ public class RestService {
 
     protected ObjectMapper mapper = new ObjectMapper();
 
-    @GetMapping("/api/standings")
+    @GetMapping("/standings")
     public ResponseEntity<?>  standings() {
         List<Map<String, Object>> users = repository.listUsers();
         List<Map<String, Object>> submissions = repository.listSubmissions();
@@ -86,7 +88,7 @@ public class RestService {
         return getResponse(ResponseMessage.getOKMessage(users));
     }
 
-    @PostMapping("/api/register")
+    @PostMapping("/register")
     public ResponseEntity<?>  register(@RequestParam("username") String username,
                                        @RequestParam("password") String password,
                                        @RequestParam("password2") String password2,
@@ -114,7 +116,7 @@ public class RestService {
         return getResponse(ResponseMessage.getOKMessage(""));
     }
 
-	@PostMapping("/api/submit")
+	@PostMapping("/submit")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public ResponseEntity<?> submitFile(@RequestPart("file") MultipartFile file,
 										@RequestParam("username") String username,
@@ -180,7 +182,7 @@ public class RestService {
 		return ResponseMessage.getOKMessage("Submission uploaded with id " + submissionNumber);
 	}
 
-	@PostMapping("/api/submissions")
+	@PostMapping("/submissions")
 	public ResponseEntity<?>  listSubmissions(@RequestParam("username") String username,
 											  @RequestParam("password") String password) {
         username = username.toLowerCase();
