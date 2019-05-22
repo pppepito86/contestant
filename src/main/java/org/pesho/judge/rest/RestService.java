@@ -20,6 +20,7 @@ import org.pesho.grader.SubmissionScore;
 import org.pesho.grader.task.TaskDetails;
 import org.pesho.grader.task.TaskParser;
 import org.pesho.judge.repositories.Repository;
+import org.pesho.sandbox.SandboxExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.zeroturnaround.exec.ProcessExecutor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -173,7 +175,11 @@ public class RestService {
 		File sourceFile = getFile("submissions", String.valueOf(submissionId), fileName);
 		try {
 			FileUtils.copyInputStreamToFile(file.getInputStream(), sourceFile);
-		} catch (IOException e) {
+			if (FileType.isJava(fileName)) {
+                new ProcessExecutor().command("sed", "-i", "'1 s/^package.*//'", sourceFile.getAbsolutePath()).execute();
+            }
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseMessage.getErrorMessage("Problem occurred");
 		}
