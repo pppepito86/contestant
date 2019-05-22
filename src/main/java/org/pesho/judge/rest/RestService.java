@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -175,20 +176,29 @@ public class RestService {
 		File sourceFile = getFile("submissions", String.valueOf(submissionId), fileName);
 		try {
 			FileUtils.copyInputStreamToFile(file.getInputStream(), sourceFile);
-			if (FileType.isJava(fileName)) {
-                new ProcessExecutor().command("sed", "-i", "'1 s/^package.*//'", sourceFile.getAbsolutePath()).execute();
-            }
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseMessage.getErrorMessage("Problem occurred");
 		}
-		int submissionNumber = repository.userSubmissionsNumberForProblem(username, PROBLEM_NUMBER, submissionId);
+
+        if (FileType.isJava(fileName)) {
+            removePackageDeclaration(sourceFile);
+        }
+
+        int submissionNumber = repository.userSubmissionsNumberForProblem(username, PROBLEM_NUMBER, submissionId);
 
 		return ResponseMessage.getOKMessage("Submission uploaded with id " + submissionNumber);
 	}
 
-	@PostMapping("/submissions")
+    private void removePackageDeclaration(File sourceFile) {
+        try {
+            new ProcessExecutor().command("sed", "-i", "1 s/^package.*//", sourceFile.getAbsolutePath()).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @PostMapping("/submissions")
 	public ResponseEntity<?>  listSubmissions(@RequestParam("username") String username,
 											  @RequestParam("password") String password) {
         username = username.toLowerCase();
