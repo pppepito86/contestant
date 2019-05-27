@@ -98,6 +98,7 @@ public class RestService {
                                        @RequestParam("name") String name,
                                        @RequestParam("email") String email,
                                        @RequestParam("linkedin") String linkedin,
+                                       @RequestParam("privacy") Integer privacy,
                                        @RequestParam("contact") Optional<Boolean> checkbox) {
         username = username.toLowerCase();
         if (username.length() < 6) return getResponse(ResponseMessage.getErrorMessage("Username should be at least 6 characters"));
@@ -115,7 +116,7 @@ public class RestService {
         if (name.isEmpty()) return getResponse(ResponseMessage.getErrorMessage("Name should be provided"));
         if (email.isEmpty()) return getResponse(ResponseMessage.getErrorMessage("Email should be provided"));
 
-        repository.addUser(username, password, email, name, linkedin, checkbox.orElse(false).toString());
+        repository.addUser(username, password, email, name, linkedin, checkbox.orElse(false).toString() + ", " + privacy);
         return getResponse(ResponseMessage.getOKMessage(""));
     }
 
