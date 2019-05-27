@@ -100,6 +100,8 @@ public class RestService {
                                        @RequestParam("linkedin") String linkedin,
                                        @RequestParam("privacy") Integer privacy,
                                        @RequestParam("contact") Optional<Boolean> checkbox) {
+        if (privacy != 1 && privacy != 24) return ResponseEntity.badRequest().build();
+
         username = username.toLowerCase();
         if (username.length() < 6) return getResponse(ResponseMessage.getErrorMessage("Username should be at least 6 characters"));
         if (username.length() > 20) return getResponse(ResponseMessage.getErrorMessage("Username should be at most 20 characters"));
