@@ -287,7 +287,7 @@ public class RestService {
                     SubmissionScore score = mapper.readValue(submissionDetails, SubmissionScore.class);
                     for (int i = 1; i < score.getScoreSteps().size(); i++) {
                         StepResult step = score.getScoreSteps().get("Test" + i);
-                        if (step.getVerdict() == Verdict.TL) split[i-1]+="/-";
+                        if (step.getVerdict() == Verdict.TL) split[i-1]+="/>5s";
                         else split[i-1] += "/" + String.format("%.1fs", step.getTime());
                     }
                     submission.put("verdict", String.join( ",", split));
