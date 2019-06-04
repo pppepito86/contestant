@@ -288,7 +288,7 @@ public class RestService {
                     for (int i = 1; i < score.getScoreSteps().size(); i++) {
                         StepResult step = score.getScoreSteps().get("Test" + i);
                         if (step.getVerdict() == Verdict.TL) split[i-1]+="/-";
-                        else split[i-1] += "/" + String.format("%.1f", step.getTime());
+                        else split[i-1] += "/" + String.format("%.1fs", step.getTime());
                     }
                     submission.put("verdict", String.join( ",", split));
                 } else submission.remove("verdict");
