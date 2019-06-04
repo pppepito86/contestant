@@ -17,6 +17,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.FileUtils;
 import org.pesho.grader.SubmissionScore;
+import org.pesho.grader.step.StepResult;
+import org.pesho.grader.step.Verdict;
 import org.pesho.grader.task.TaskDetails;
 import org.pesho.grader.task.TaskParser;
 import org.pesho.judge.repositories.Repository;
@@ -277,6 +279,23 @@ public class RestService {
             submission.put("reason", reason);
 
 			if (feedback.size() != 0) submission.put("points", "?");
+
+			try {
+			    if (submission.get("points") != null) {
+                    String[] split = submission.get("verdict").toString().split(",");
+                    String submissionDetails = submission.get("details").toString();
+                    SubmissionScore score = mapper.readValue(submissionDetails, SubmissionScore.class);
+                    for (int i = 1; i < score.getScoreSteps().size(); i++) {
+                        StepResult step = score.getScoreSteps().get("Test" + i);
+                        if (step.getVerdict() == Verdict.TL) split[i-1]+="/-";
+                        else split[i-1] += "/" + String.format("%.1f", step.getTime());
+                    }
+                    submission.put("verdict", String.join( ",", split));
+                } else submission.remove("verdict");
+            } catch (Exception e) {
+			    e.printStackTrace();
+            }
+
     	});
 		return submissions;
 	}
