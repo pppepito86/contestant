@@ -71,7 +71,13 @@ public class RestService {
 
             int userIndex = usersNumber.get(username);
             users.get(userIndex).put("id", submission.get("id"));
-            users.get(userIndex).put("points", submission.get("points"));
+            if (users.get(userIndex).containsKey("points")) {
+            	Integer pointsOld = (Integer) users.get(userIndex).get("points");
+				Integer pointsNew = (Integer) submission.get("points");
+				if (pointsNew > pointsOld) users.get(userIndex).put("points", submission.get("points"));
+			} else {
+				users.get(userIndex).put("points", submission.get("points"));
+			}
             users.get(userIndex).put("upload_time", submission.get("upload_time"));
         }
 
