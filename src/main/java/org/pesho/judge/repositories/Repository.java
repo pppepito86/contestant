@@ -159,6 +159,10 @@ public class Repository {
     public List<Map<String, Object>> listSubmissions() {
 		return template.queryForList("SELECT * from submissions order by id ASC");
 	}
+
+	public List<Map<String, Object>> listSubmissionsSmall() {
+		return template.queryForList("SELECT id, username, points, upload_time from submissions order by id ASC");
+	}
 	
 	public List<Map<String, Object>> listCitySubmissions(String city) {
 		return template.queryForList("SELECT * from submissions where city=?", city);

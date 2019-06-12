@@ -57,7 +57,7 @@ public class RestService {
     @GetMapping("/standings")
     public ResponseEntity<?>  standings() {
         List<Map<String, Object>> users = repository.listUsers();
-        List<Map<String, Object>> submissions = repository.listSubmissions();
+        List<Map<String, Object>> submissions = repository.listSubmissionsSmall();
 
         HashMap<String, Integer> usersNumber = new HashMap<>();
         for (int i = 0; i < users.size(); i++) {
