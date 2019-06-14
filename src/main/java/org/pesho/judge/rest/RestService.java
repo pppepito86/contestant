@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.zeroturnaround.exec.ProcessExecutor;
-import org.zeroturnaround.exec.ProcessResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -309,6 +308,27 @@ public class RestService {
 
     	});
 		return submissions;
+	}
+
+	@RequestMapping("/time")
+	public ResponseEntity<?> timeLeft() {
+		return ResponseEntity.ok(getTimes());
+	}
+
+	private HashMap<String, Object> getTimes() {
+		long currentTime = System.currentTimeMillis();
+		Map<String, Object> contest = repository.getContest(CONTEST_ID).get();
+
+		Timestamp startTime = (Timestamp) contest.get("start_time");
+		Timestamp endTime = (Timestamp) contest.get("end_time");
+		long timeTillStart = startTime.getTime() - currentTime;
+		long timeTillEnd = endTime.getTime() - currentTime;
+
+		HashMap<String, Object> map = new HashMap<>();
+		map.put("timeTillStart", timeTillStart);
+		map.put("timeTillEnd", timeTillEnd);
+
+		return map;
 	}
 
 }
